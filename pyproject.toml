@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compact-bm25"
+version = "0.1.0"
+authors = [
+  { name="wangkun", email="kun@example.com" },
+]
+description = "A memory-efficient, bit-identical drop-in replacement for rank_bm25 using NumPy CSR matrices."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Indexing",
+]
+dependencies = [
+    "numpy>=1.20.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/wangkun5212-hue/compact-bm25"
+"Bug Tracker" = "https://github.com/wangkun5212-hue/compact-bm25/issues"
