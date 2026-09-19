@@ -3,6 +3,8 @@
 > **A memory-efficient, bit-identical, drop-in replacement for `rank_bm25`.**
 > Slash RAG index memory by **60% ~ 80%** while accelerating query speed by **10x~20x** with NumPy CSR/CSC sparse matrices.
 
+> **English | [中文文档](README_zh.md)**
+
 [![PyPI](https://img.shields.io/pypi/v/compact-bm25?color=blue)](https://pypi.org/project/compact-bm25/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
