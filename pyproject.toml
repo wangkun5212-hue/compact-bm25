@@ -6,9 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "compact-bm25"
 version = "0.1.0"
 authors = [
-  { name="wangkun", email="kun@example.com" },
+  { name="Wang Kun" },
 ]
-description = "A memory-efficient, bit-identical drop-in replacement for rank_bm25 using NumPy CSR matrices."
+description = "A memory-efficient BM25Okapi implementation using compact NumPy indexes."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -20,6 +20,12 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "rank-bm25>=0.2.2",
 ]
 
 [project.urls]

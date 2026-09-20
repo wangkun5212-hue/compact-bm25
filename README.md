@@ -1,11 +1,10 @@
 # ⚡ CompactBM25
 
-> **A memory-efficient, bit-identical, drop-in replacement for `rank_bm25`.**
+> **A memory-efficient BM25Okapi implementation with a familiar `rank_bm25` API.**
 > Slash RAG index memory by **60% ~ 80%** while accelerating query speed by **10x~20x** with NumPy CSR/CSC sparse matrices.
 
 > **English | [中文文档](README_zh.md)**
 
-[![PyPI](https://img.shields.io/pypi/v/compact-bm25?color=blue)](https://pypi.org/project/compact-bm25/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
@@ -26,23 +25,23 @@ However, as your knowledge base grows beyond 100,000 chunks:
 **CompactBM25** completely reimagines BM25 storage using contiguous **NumPy flat arrays** and **CSR (Compressed Sparse Row) / CSC (Compressed Sparse Column)** offsets:
 
 - 📉 **60% ~ 80% Memory Reduction**: Compact CSR representation slashes memory usage from gigabytes down to a couple hundred megabytes.
-- 🎯 **Exact Bit-Identical Scores**: Matches `rank_bm25.BM25Okapi` Robertson IDF formula and epsilon flooring down to `1e-6` floating precision.
-- ⚡ **Blazing Fast Cold Start & Query**: Instant memory mapping and zero dictionary deserialization overhead (0.1s load time). Vectorized scoring runs up to **20x faster** than pure Python loops.
-- 🔄 **100% Drop-in Compatibility**: `bm25.get_scores(query)` and `bm25.get_top_n(query, docs)` work identically.
+- 🎯 **Numerically Compatible Scores**: Matches the `rank_bm25.BM25Okapi` Robertson IDF formula and epsilon flooring within the tested floating-point tolerance.
+- ⚡ **Compact Serialization & Fast Queries**: Flat NumPy arrays avoid nested term-frequency dictionaries and support vectorized scoring.
+- 🔄 **Familiar API**: Supports `bm25.get_scores(query)` and `bm25.get_top_n(query, docs)` with parity tests for their core behavior.
 
 ---
 
 ## 📊 Benchmark
 
-Tested on a synthetic corpus of **5,000 documents** (50 words/doc, vocabulary size 2,000):
+One local run of `benchmarks/benchmark_vs_rank_bm25.py` on a synthetic corpus of **5,000 documents** (50 words/doc, vocabulary size 2,000) produced:
 
 | Metric | `rank_bm25.BM25Okapi` | `CompactBM25` | Improvement |
 | :--- | :--- | :--- | :--- |
 | **Peak Memory** | 11.08 MB | **3.30 MB** | **📉 70.2% Saved** |
 | **Query Latency (100 runs)** | 1.45 ms | **0.05 ms** | **⚡ 29x Faster** |
-| **Score Difference** | Baseline | **0.00e+00** | **✅ Bit-Identical** |
+| **Max Score Difference** | Baseline | **0.00e+00** | **✅ Numerically equal in this run** |
 
-*(On a 145,000-chunk production RAG dataset, steady-state RAM dropped from **1,547 MB down to 536 MB**)*.
+Results depend on Python, NumPy, hardware, corpus shape, and vocabulary distribution. Run the included benchmark in your own environment before making capacity decisions.
 
 ---
 
@@ -51,7 +50,9 @@ Tested on a synthetic corpus of **5,000 documents** (50 words/doc, vocabulary si
 ### Installation
 
 ```bash
-pip install compact-bm25
+git clone https://github.com/wangkun5212-hue/compact-bm25.git
+cd compact-bm25
+pip install .
 ```
 
 ### Basic Usage (Drop-in Replacement)
@@ -91,7 +92,7 @@ import pickle
 with open("bm25_index.pkl", "wb") as f:
     pickle.dump(bm25, f)
 
-# Instant reload in production (<0.1s cold start)
+# Reload the compact index
 with open("bm25_index.pkl", "rb") as f:
     bm25 = pickle.load(f)
 ```

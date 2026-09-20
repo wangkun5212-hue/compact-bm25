@@ -65,7 +65,7 @@ def main():
     max_diff = np.max(diff)
     print(f"Max absolute score difference: {max_diff:.2e}")
     assert np.allclose(orig_scores, compact_scores, atol=1e-5), "Scores do not match!"
-    print("✅ Parity verified! CompactBM25 is bit-identical to rank_bm25.")
+    print("✅ Numerical parity verified within the configured tolerance.")
 
 if __name__ == "__main__":
     main()

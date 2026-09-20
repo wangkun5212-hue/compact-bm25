@@ -2,10 +2,9 @@
 
 > **[English](README.md) | 中文**
 
-> **`rank_bm25` 的内存高效、逐位一致（bit-identical）、零改造替换方案。**
+> **内存高效、API 风格与 `rank_bm25` 相近的 BM25Okapi 实现。**
 > 基于 NumPy CSR/CSC 稀疏矩阵，将 RAG 索引内存砍掉 **60% ~ 80%**，查询速度提升 **10x~20x**。
 
-[![PyPI](https://img.shields.io/pypi/v/compact-bm25?color=blue)](https://pypi.org/project/compact-bm25/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
@@ -26,23 +25,23 @@
 **CompactBM25** 用连续的 **NumPy 扁平数组** 和 **CSR（压缩稀疏行）/ CSC（压缩稀疏列）** 偏移量彻底重构了 BM25 的存储方式：
 
 - 📉 **内存直降 60% ~ 80%**：紧凑 CSR 表示，把内存占用从 GB 级压到几百 MB。
-- 🎯 **评分逐位一致**：完整复刻 `rank_bm25.BM25Okapi` 的 Robertson IDF 公式与 epsilon 地板逻辑，浮点精度误差在 `1e-6` 以内。
-- ⚡ **冷启动与查询双快**：内存映射瞬时加载、零字典反序列化开销（0.1 秒加载完成）。向量化打分比纯 Python 循环快 **20 倍**。
-- 🔄 **100% 零改造替换**：`bm25.get_scores(query)` 和 `bm25.get_top_n(query, docs)` 用法完全一致，改一行 import 即可。
+- 🎯 **数值兼容**：复刻 `rank_bm25.BM25Okapi` 的 Robertson IDF 公式与 epsilon 地板逻辑，并在测试浮点容差内保持一致。
+- ⚡ **紧凑序列化与快速查询**：用扁平 NumPy 数组替代嵌套词频字典，并支持向量化打分。
+- 🔄 **熟悉的 API**：支持 `bm25.get_scores(query)` 和 `bm25.get_top_n(query, docs)`，核心行为配有一致性测试。
 
 ---
 
 ## 📊 性能基准
 
-在 **5,000 篇文档** 的合成语料上测试（每篇 50 词，词表大小 2,000）：
+随附脚本 `benchmarks/benchmark_vs_rank_bm25.py` 的一次本地运行结果如下（5,000 篇合成文档、每篇 50 词、词表大小 2,000）：
 
 | 指标 | `rank_bm25.BM25Okapi` | `CompactBM25` | 提升 |
 | :--- | :--- | :--- | :--- |
 | **峰值内存** | 11.08 MB | **3.30 MB** | **📉 节省 70.2%** |
 | **查询延迟（100 次均值）** | 1.45 ms | **0.05 ms** | **⚡ 快 29 倍** |
-| **评分差异** | 基准 | **0.00e+00** | **✅ 逐位一致** |
+| **最大评分差异** | 基准 | **0.00e+00** | **✅ 本次运行数值相等** |
 
-*（在 14.5 万 chunks 的生产级 RAG 数据集上，稳态内存从 **1,547 MB 降至 536 MB**。）*
+结果会受到 Python、NumPy、硬件、语料结构和词表分布影响；容量规划前请在自己的环境中运行随附基准测试。
 
 ---
 
@@ -51,7 +50,9 @@
 ### 安装
 
 ```bash
-pip install compact-bm25
+git clone https://github.com/wangkun5212-hue/compact-bm25.git
+cd compact-bm25
+pip install .
 ```
 
 ### 基础用法（零改造替换）
@@ -91,7 +92,7 @@ import pickle
 with open("bm25_index.pkl", "wb") as f:
     pickle.dump(bm25, f)
 
-# 生产环境瞬时加载（冷启动 <0.1 秒）
+# 重新加载紧凑索引
 with open("bm25_index.pkl", "rb") as f:
     bm25 = pickle.load(f)
 ```

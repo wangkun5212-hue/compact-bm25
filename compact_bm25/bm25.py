@@ -4,13 +4,13 @@ CompactBM25 - Memory-Efficient Vectorized BM25Okapi Engine.
 
 Uses flat NumPy arrays and Compressed Sparse Row/Column (CSR/CSC) representation
 to slash in-memory storage of BM25 inverted indices by 60~80% while retaining
-exact bit-identical score alignment with standard rank_bm25.BM25Okapi.
+numerical score alignment with standard rank_bm25.BM25Okapi.
 """
 
 from __future__ import annotations
 
 import math
-from typing import Dict, Iterable, List, Sequence, Union
+from typing import Any, Dict, Iterable, List, Sequence, Union
 import numpy as np
 
 FORMAT_TAG = "compact_bm25_v1"
@@ -100,9 +100,12 @@ class CompactBM25:
         """
         Returns top-n documents ranked by BM25 score.
         """
+        assert self.corpus_size == len(documents), (
+            "The documents given don't match the index corpus!"
+        )
         scores = self.get_scores(query)
         top_indices = np.argsort(scores)[::-1][:n]
-        return [documents[i] for i in top_indices if scores[i] > 0]
+        return [documents[i] for i in top_indices]
 
     @classmethod
     def build(

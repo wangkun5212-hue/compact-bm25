@@ -39,3 +39,23 @@ def test_parity_with_rank_bm25():
     s_compact = compact.get_scores(query)
 
     assert np.allclose(s_orig, s_compact, atol=1e-6)
+
+
+def test_top_n_matches_rank_bm25_when_all_scores_are_zero():
+    corpus = [["apple"], ["banana"]]
+    documents = ["Doc 1", "Doc 2"]
+    query = ["missing"]
+
+    orig = BM25Okapi(corpus)
+    compact = CompactBM25.build(corpus)
+
+    assert compact.get_top_n(query, documents, n=2) == orig.get_top_n(
+        query, documents, n=2
+    )
+
+
+def test_top_n_rejects_document_count_mismatch():
+    compact = CompactBM25.build([["apple"], ["banana"]])
+
+    with pytest.raises(AssertionError, match="documents given"):
+        compact.get_top_n(["apple"], ["Doc 1"])
